@@ -6,11 +6,13 @@ const cors = require('cors');
 require('dotenv/config');
 // IMPORT ROUTES
 const linksRoute = require('./routes/linksRoute');
+const authRoute = require('./routes/auth');
 
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cors());
 
 app.use('/links', linksRoute);
+app.use('/user', authRoute);
 
 // ROUTES
 app.get('/', (req, res) => {
