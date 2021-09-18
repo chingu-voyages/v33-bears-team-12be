@@ -1,14 +1,18 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const bcrypt = require('bcryptjs');
 
-const LinkSchema = new Schema({
+const UserSchema = new Schema({
   //link: { type: Schema.Types.ObjectId, ref: 'Link', required: false },
-  title: {
+  email: {
     type: String,
+    unique: true,
+    lowercase: true,
     required: true,
   },
-  hyperlink: {
+  password: {
     type: String,
+    select: false,
     required: true,
   },
   // userId: {
@@ -17,4 +21,4 @@ const LinkSchema = new Schema({
   // },
 });
 
-module.exports = mongoose.model('Link', LinkSchema);
+module.exports = mongoose.model('User', UserSchema);
