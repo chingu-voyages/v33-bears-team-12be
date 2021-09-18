@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcryptjs');
 
-const Userchema = new Schema({
+const UserSchema = new Schema({
   //link: { type: Schema.Types.ObjectId, ref: 'Link', required: false },
   email: {
     type: String,
