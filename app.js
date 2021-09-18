@@ -1,11 +1,14 @@
+const mongoose = require('mongoose');
+const Link = require('./models/Link');
 const express = require('express');
 const app = express();
-const mongoose = require('mongoose');
-const linksRoute = require('./routes/links');
+const cors = require('cors');
 require('dotenv/config');
-
 // IMPORT ROUTES
-const postLinks = require('./routes/links');
+const linksRoute = require('./routes/linksRoute');
+
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 app.use('/links', linksRoute);
 
@@ -17,7 +20,7 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT;
 
 // CONNECT TO DB
-mongoose.connect(process.env.DB_CONNECTION, () =>
+mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true }, () =>
   console.log('connected to DB')
 );
 
