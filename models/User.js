@@ -4,11 +4,17 @@ const bcrypt = require('bcryptjs');
 
 const UserSchema = new Schema({
   //link: { type: Schema.Types.ObjectId, ref: 'Link', required: false },
-  name: { 
+  username: {
     type: String,
     required: true,
     min: 6,
-    max: 255
+    max: 30
+  },
+  name: { 
+    type: String,
+    required: true,
+    max: 255,
+    min: 3
   },
   email: {
     type: String,
