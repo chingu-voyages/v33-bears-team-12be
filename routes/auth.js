@@ -13,4 +13,14 @@ router
   .post(controller.login) //// LOGIN USER
   .all(methodNotAllowed);
 
+router
+  .route("/refresh")
+  .post(controller.refresh) //// REFRESH TOKENS
+  .all(methodNotAllowed);
+
+router
+  .route("/logout")
+  .post(verify, controller.logout) //// LOGOUT USER
+  .all(methodNotAllowed);
+
 module.exports = router;

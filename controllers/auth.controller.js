@@ -3,6 +3,7 @@ const {
   loginValidation,
 } = require("../validation/validation");
 const User = require("../models/User");
+const RefreshToken = require("../models/RefreshToken");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -48,6 +49,22 @@ async function register(req, res) {
   }
 }
 
+const generateAccessToken = (user) => {
+  return jwt.sign(
+    { _id: user._id, username: user.username },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: "15m",
+    }
+  );
+};
+const generateRefreshToken = (user) => {
+  return jwt.sign(
+    { _id: user._id, username: user.username },
+    process.env.REFRESH_TOKEN_SECRET
+  );
+};
+
 ////LOGIN USER
 async function login(req, res) {
   //validate data
@@ -58,18 +75,70 @@ async function login(req, res) {
   const user = await User.findOne({ email: req.body.email }).select(
     "+password"
   );
-  if (!user) return res.status(400).send("Invalid Email");
+  if (!user) return res.status(400).send("Invalid Email or Password");
 
   //pasword is correct
   const validPass = await bcrypt.compare(req.body.password, user.password);
-  if (!validPass) return res.status(400).send("Invalid Password");
+  if (!validPass) return res.status(400).send("Invalid Email or Password");
 
-  //create and assign token
-  const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
-  res.header("auth-token", token).send(token);
+  //create and assign Tokens
+  const accessToken = generateAccessToken(user);
+  const refreshToken = new RefreshToken({ token: generateRefreshToken(user) });
+  refreshToken
+    .save()
+    .then((data) => {
+      res.status(200).json({
+        username: user.username,
+        _id: user._id,
+        accessToken,
+        refreshToken: refreshToken.token,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({ message: err });
+    });
+}
+
+////REFRESH TOKENS
+async function refresh(req, res) {
+  const refreshToken = req.body.token;
+  if (!refreshToken) return res.status(401).send("You are not Authenticated");
+  const validToken = await RefreshToken.findOne({ token: refreshToken });
+  if (!validToken) return res.status(403).send("Refresh Token is not valid");
+  try {
+    const user = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    await RefreshToken.deleteOne({ token: refreshToken });
+    const newAccessToken = generateAccessToken(user);
+    const newRefreshToken = new RefreshToken({
+      token: generateRefreshToken(user),
+    });
+    await newRefreshToken.save();
+    res.status(200).json({
+      username: user.username,
+      _id: user._id,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken.token,
+    });
+  } catch (err) {
+    await RefreshToken.deleteOne({ token: refreshToken });
+    res.json({ messages: err });
+  }
+}
+
+async function logout(req, res) {
+  const refreshToken = req.body.token;
+  try {
+    await RefreshToken.deleteOne({ token: refreshToken });
+    res.status(200).json("You have logged out successfully");
+  } catch (err) {
+    res.json({ messages: err });
+  }
 }
 
 module.exports = {
   register,
   login,
+  refresh,
+  logout,
 };
