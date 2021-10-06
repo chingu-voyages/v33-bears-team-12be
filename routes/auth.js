@@ -23,4 +23,9 @@ router
   .post(verify, controller.logout) //// LOGOUT USER
   .all(methodNotAllowed);
 
+router
+  .route("/username/:username")
+  .get(controller.readUsername) //// LOGOUT USER
+  .all(methodNotAllowed);
+
 module.exports = router;
