@@ -3,6 +3,7 @@ const {
   loginValidation,
 } = require("../validation/validation");
 const User = require("../models/User");
+const Link = require("../models/Link");
 const RefreshToken = require("../models/RefreshToken");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -136,9 +137,24 @@ async function logout(req, res) {
   }
 }
 
+async function readUsername(req, res) {
+  const username = req.params.username;
+  const user = await User.findOne({ username }).select();
+  if (!user) return res.status(404).json({ error: "Username not found" });
+  const links = await Link.find({ userId: user._id });
+  const userWithLinks = {
+    _id: user._id,
+    username: user.username,
+    name: user.name,
+    links,
+  };
+  res.send(userWithLinks);
+}
+
 module.exports = {
   register,
   login,
   refresh,
   logout,
+  readUsername,
 };
