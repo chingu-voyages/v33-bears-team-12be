@@ -8,16 +8,16 @@ async function list(req, res) {
     console.log("getting links");
     res.json(links);
   } catch (err) {
-    res.json({ message: err });
+    res.json({ error: err });
   }
 }
 
 //// POST NEW LINK TO USER
-function create(req, res) {
+function create(req, res, next) {
   console.log("posting links", req.body);
   //validate data
   const { error } = linkValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return next({ status: 400, message: error.details[0].message });
   //create link
   const link = new Link({
     title: req.body.title,
@@ -31,7 +31,7 @@ function create(req, res) {
     })
     .catch((err) => {
       console.log(err);
-      res.json({ message: err });
+      res.json({ error: err });
     });
 }
 
