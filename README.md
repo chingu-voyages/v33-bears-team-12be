@@ -33,7 +33,7 @@ This is an app (similar to Linktree) where you can create a profile with a list 
 
 The `users` model takes the form of the following schema:
 
-```json
+```
 {
   username: {
     type: String,
@@ -73,7 +73,7 @@ The `users` model takes the form of the following schema:
 
 The `links` model takes the form of the following schema:
 
-```json
+```
 {
   title: {
     type: String,
