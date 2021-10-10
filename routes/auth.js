@@ -25,7 +25,7 @@ router
 
 router
   .route("/username/:username")
-  .get(controller.readUsername) //// LOGOUT USER
+  .get(controller.readUsername) //// GET USER INCLUDING LINKS, BY USERNAME
   .all(methodNotAllowed);
 
 module.exports = router;
